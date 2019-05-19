@@ -28,9 +28,9 @@
 package org.codeaurora.ims;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.os.RemoteException;
 import android.telephony.ims.feature.ImsFeature;
-import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -289,18 +289,6 @@ public class QtiImsExtManager {
         return ret;
     }
 
-    //TODO remove later. This is only for dependent modules compilation
-    public boolean isImsRegistered(int phoneId) throws QtiImsException {
-        final int[] subIds = SubscriptionManager.getSubId(phoneId);
-        int subId = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
-        if (subIds != null && subIds.length >= 1) {
-            subId = subIds[0];
-        }
-        TelephonyManager telephonyManager =
-                (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-        return telephonyManager.isImsRegistered(subId);
-    }
-
     public int setVvmAppConfig(int phoneId, int defaultVvmApp) throws QtiImsException {
         validateInvariants(phoneId);
         int ret = ImsConfig.OperationStatusConstants.UNKNOWN;
@@ -323,6 +311,16 @@ public class QtiImsExtManager {
         }
 
         return ret;
+    }
+
+    public void setAnswerExtras(int phoneId, Bundle extras) throws QtiImsException {
+        validateInvariants(phoneId);
+
+        try {
+            mQtiImsExt.setAnswerExtras(phoneId, extras);
+        } catch(RemoteException e) {
+            throw new QtiImsException("Remote ImsService setAnswerExtras : " + e);
+        }
     }
 
     public ImsMultiIdentityManager createImsMultiIdentityManager(int phoneId)
